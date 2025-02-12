@@ -21,7 +21,7 @@ public class LivroController {
         this.livroService = livroService;
     }
 
-    @PostMapping
+    @PostMapping("/cadastrar")
     public ResponseEntity<LivroSaida> cadastrar(@RequestBody @Valid LivroEntrada livroEntrada, UriComponentsBuilder uriBuilder) {
         var livro = livroService.cadastrarLivro(livroEntrada);
         var uri = uriBuilder.path("/livro/{id}").buildAndExpand(livro.id()).toUri();

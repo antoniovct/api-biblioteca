@@ -35,7 +35,13 @@ public class SecurityConfig {
     public SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
         var http = httpSecurity
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST,"/login").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST,"/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,"usuarios/cadastrar").hasRole("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "usuarios/usuario/{id}").hasRole("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "livros/cadastrar").hasRole("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "livros/livro/{id}").hasRole("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "livros/livro/{id}").hasRole("ROLE_ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(auth -> auth.jwt(Customizer.withDefaults()))
