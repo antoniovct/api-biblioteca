@@ -1,5 +1,6 @@
 package com.antoniovictor.biblioteca.entities;
 
+import com.antoniovictor.biblioteca.dto.UsuarioEntrada;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -8,7 +9,6 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -18,20 +18,26 @@ import java.util.List;
 @EqualsAndHashCode(of = "id" )
 @Entity
 @Table(name = "usuarios")
-public class User implements UserDetails {
+public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private String username;
-    private String password;
+    private String nome;
+    private String email;
+    private String senha;
     private String cpf;
-    private Role role;
+
+    public Usuario(UsuarioEntrada usuarioEntrada, String senha) {
+        this.nome = usuarioEntrada.nome();
+        this.email = usuarioEntrada.email();
+        this.senha = senha;
+        this.cpf = usuarioEntrada.cpf();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(this.role.equals(Role.ADMIN)) {
+        if(this.email.contains("admin")) {
             return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }else {
             return List.of(new SimpleGrantedAuthority("ROLE_USER"));
@@ -40,11 +46,11 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.password;
+        return this.senha;
     }
 
     @Override
     public String getUsername() {
-        return this.username;
+        return this.email;
     }
 }

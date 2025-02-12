@@ -1,2 +1,12 @@
-package com.antoniovictor.biblioteca.repository;public interface UsuarioRepository {
+package com.antoniovictor.biblioteca.repository;
+
+import com.antoniovictor.biblioteca.entities.Usuario;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+    Optional<Usuario> findByEmail(String email);
 }
