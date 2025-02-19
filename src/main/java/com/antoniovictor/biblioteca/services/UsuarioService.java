@@ -5,6 +5,7 @@ import com.antoniovictor.biblioteca.dto.UsuarioEntrada;
 import com.antoniovictor.biblioteca.dto.UsuarioSaida;
 import com.antoniovictor.biblioteca.entities.Usuario;
 import com.antoniovictor.biblioteca.repository.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -65,5 +66,13 @@ public class UsuarioService implements UserDetailsService {
     @Transactional
     public void remover(long id) {
         usuarioRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void bloquear(long id) {
+        var usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
+        usuario.setAtivo(false);
     }
 }

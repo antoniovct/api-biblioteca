@@ -2,13 +2,12 @@ package com.antoniovictor.biblioteca.entities;
 
 import com.antoniovictor.biblioteca.dto.UsuarioEntrada;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,17 +21,34 @@ public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.NONE)
     private Long id;
     private String nome;
     private String email;
     private String senha;
     private String cpf;
+    @OneToMany(mappedBy = "usuario",cascade = CascadeType.ALL, orphanRemoval = true)
+    @Setter(AccessLevel.NONE)
+    private List<Emprestimo> emprestimos = new ArrayList<>();
+    private Boolean ativo;
+    @OneToMany(mappedBy = "usuario",cascade = CascadeType.ALL, orphanRemoval = true)
+    @Setter(AccessLevel.NONE)
+    private List<Reserva> reservas = new ArrayList<>();
 
     public Usuario(UsuarioEntrada usuarioEntrada, String senha) {
         this.nome = usuarioEntrada.nome();
         this.email = usuarioEntrada.email();
         this.senha = senha;
         this.cpf = usuarioEntrada.cpf();
+        this.ativo = true;
+    }
+
+    public void addReserva(Reserva reserva) {
+        this.reservas.add(reserva);
+    }
+
+    public void addEmprestimo(Emprestimo emprestimo) {
+        this.emprestimos.add(emprestimo);
     }
 
     @Override

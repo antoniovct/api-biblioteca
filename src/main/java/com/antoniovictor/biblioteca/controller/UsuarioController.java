@@ -46,6 +46,12 @@ public class UsuarioController {
         return ResponseEntity.ok(usuario);
     }
 
+    @PutMapping("/usuario/{id}/bloquear")
+    public ResponseEntity<Void> bloquear(@PathVariable(value = "id") long id) {
+        usuarioService.bloquear(id);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/usuario/{id}")
     public ResponseEntity<Void> remover(@PathVariable(value = "id") long id) {
         usuarioService.remover(id);

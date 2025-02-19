@@ -74,13 +74,6 @@ public class LivroService {
     }
 
     @Transactional
-    public void saidaLivro(long id,int quantidade) {
-        Livro livro = livroRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Livro não encontrado!"));
-        livro.saida(quantidade);
-    }
-
-    @Transactional
     public void deletarLivro(long id) {
         livroRepository.deleteById(id);
     }

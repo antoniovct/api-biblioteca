@@ -1,0 +1,1 @@
+alter table livros add column disponivel boolean;
