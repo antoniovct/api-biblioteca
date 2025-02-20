@@ -45,7 +45,7 @@ public class EmprestimoService {
 
         if(reservaAtiva.isPresent()) {
             var reserva = reservaAtiva.get();
-            if (reserva.getUsuario().equals(usuario) && emprestimosPendentes.isEmpty() && livro.getDisponivel() && emprestimosAtivos.size() < 2) {
+            if (Boolean.TRUE.equals(reserva.getUsuario().equals(usuario) && emprestimosPendentes.isEmpty() && livro.getDisponivel()) && emprestimosAtivos.size() < 2) {
                 var emprestimo = new Emprestimo(usuario, livro);
                 emprestimoRepository.save(emprestimo);
                 livro.addEmprestimo(emprestimo);
@@ -54,9 +54,7 @@ public class EmprestimoService {
             } else {
                 throw new CadastroEmprestimoException("Erro ao efetuar empréstimo, usuário não apto à solicitar empréstimo, ou livro não disponível!");
             }
-        }
-
-        if (emprestimosPendentes.isEmpty() && livro.getDisponivel() && emprestimosAtivos.size() < 2) {
+        }else if (Boolean.TRUE.equals(emprestimosPendentes.isEmpty() && livro.getDisponivel()) && emprestimosAtivos.size() < 2) {
             var emprestimo = new Emprestimo(usuario, livro);
             emprestimoRepository.save(emprestimo);
             livro.addEmprestimo(emprestimo);
@@ -110,7 +108,7 @@ public class EmprestimoService {
         }
         emprestimo.devolver();
         Livro livro = emprestimo.getLivro();
-        if (!livro.getDisponivel()) {
+        if (Boolean.FALSE.equals(livro.getDisponivel())) {
                 livro.getReservas().stream()
                     .filter(r -> r.getStatus() == StatusReserva.PENDENTE)
                     .min(Comparator.comparing(Reserva::getData))

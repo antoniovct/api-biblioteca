@@ -21,18 +21,15 @@ public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Setter(AccessLevel.NONE)
     private Long id;
     private String nome;
     private String email;
     private String senha;
     private String cpf;
     @OneToMany(mappedBy = "usuario",cascade = CascadeType.ALL, orphanRemoval = true)
-    @Setter(AccessLevel.NONE)
     private List<Emprestimo> emprestimos = new ArrayList<>();
     private Boolean ativo;
     @OneToMany(mappedBy = "usuario",cascade = CascadeType.ALL, orphanRemoval = true)
-    @Setter(AccessLevel.NONE)
     private List<Reserva> reservas = new ArrayList<>();
 
     public Usuario(UsuarioEntrada usuarioEntrada, String senha) {

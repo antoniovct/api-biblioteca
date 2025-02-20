@@ -26,10 +26,8 @@ public class Livro {
     private Integer estoque;
     private Boolean disponivel;
     @OneToMany(mappedBy = "livro", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Setter(AccessLevel.NONE)
     private List<Emprestimo> emprestimos = new ArrayList<>();
     @OneToMany(mappedBy = "livro", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Setter(AccessLevel.NONE)
     private List<Reserva> reservas = new ArrayList<>();
 
     public Livro(LivroEntrada livroEntrada) {

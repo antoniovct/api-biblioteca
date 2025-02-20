@@ -16,7 +16,6 @@ public class Reserva {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Setter(AccessLevel.NONE)
     private Long id;
     private LocalDateTime data;
     private LocalDateTime inicio;
