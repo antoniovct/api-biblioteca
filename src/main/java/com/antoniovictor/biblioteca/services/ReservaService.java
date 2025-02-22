@@ -15,8 +15,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ReservaService {
@@ -37,7 +39,7 @@ public class ReservaService {
         var usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
 
-        if(!livro.getDisponivel() && usuario.getReservas().stream().filter(r -> r.getStatus() == StatusReserva.ATIVA).toList().size() < 3)  {
+        if(Boolean.TRUE.equals(!livro.getDisponivel()) && usuario.getReservas().stream().filter(r -> r.getStatus() == StatusReserva.ATIVA).toList().size() < 3)  {
             Reserva reserva = new Reserva(usuario, livro);
             reservaRepository.save(reserva);
             livro.addReserva(reserva);
@@ -62,10 +64,16 @@ public class ReservaService {
     }
 
     public List<ReservaSaida> listaReservasPorStatus(String statusReserva) {
-        var status = StatusReserva.valueOf(statusReserva.toUpperCase());
-        return reservaRepository.findAllByStatusOrderByData(status).stream()
-                .map(ReservaSaida::new)
-                .toList();
+        var listaDeStatus = Arrays.stream(StatusReserva.values()).toList().stream().map(Enum::name);
+        if (listaDeStatus.anyMatch(s -> Objects.equals(s, statusReserva.toUpperCase()))) {
+            var status = StatusReserva.valueOf(statusReserva.toUpperCase());
+            return reservaRepository.findAllByStatusOrderByData(status).stream()
+                    .map(ReservaSaida::new)
+                    .toList();
+        } else {
+            throw new IllegalArgumentException("Digite um valor de status valido: ativa, pendente, finalizada ou expirada");
+        }
+
     }
 
 
@@ -73,7 +81,14 @@ public class ReservaService {
     public ReservaSaida atualizarReserva(long idReserva, ReservaAtualizacao reservaAtualizacao) throws AtualizacaoReservaException {
         var reserva = reservaRepository.findById(idReserva)
                 .orElseThrow(() -> new EntityNotFoundException("Reserva não encontrada"));
-        var statusAtualizado = StatusReserva.valueOf(reservaAtualizacao.status().toUpperCase());
+        StatusReserva statusAtualizado;
+        var statusExistente = Arrays.stream(StatusReserva.values()).toList().stream()
+                .anyMatch(s -> Objects.equals(s,reservaAtualizacao.status()));
+        if (statusExistente) {
+            statusAtualizado = StatusReserva.valueOf(reservaAtualizacao.status().toUpperCase());
+        }else {
+            throw new AtualizacaoReservaException("Digite um valor válido para atualizar o status da reserva: ativa, finalizada ou expirada.");
+        }
         reserva.setStatus(statusAtualizado);
         if (statusAtualizado == StatusReserva.ATIVA) {
             reserva.setInicio(LocalDateTime.now());
@@ -87,7 +102,7 @@ public class ReservaService {
             var livro = reserva.getLivro();
             livro.removeReserva(reserva);
             return new ReservaSaida(reserva);
-        } else {
+        }else {
             throw new AtualizacaoReservaException("Digite um valor válido para atualizar o status da reserva: ativa, finalizada ou expirada.");
         }
     }
