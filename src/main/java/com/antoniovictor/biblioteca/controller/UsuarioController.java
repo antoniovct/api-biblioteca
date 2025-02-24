@@ -5,6 +5,8 @@ import com.antoniovictor.biblioteca.dto.UsuarioEntrada;
 import com.antoniovictor.biblioteca.dto.UsuarioSaida;
 import com.antoniovictor.biblioteca.services.UsuarioService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -29,8 +31,8 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UsuarioSaida>> listar() {
-        var usuarios = usuarioService.listar();
+    public ResponseEntity<Page<UsuarioSaida>> listar(Pageable pageable) {
+        var usuarios = usuarioService.listar(pageable);
         return ResponseEntity.ok(usuarios);
     }
 

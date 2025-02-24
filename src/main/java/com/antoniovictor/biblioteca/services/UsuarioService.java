@@ -7,6 +7,8 @@ import com.antoniovictor.biblioteca.entities.Usuario;
 import com.antoniovictor.biblioteca.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,21 +39,21 @@ public class UsuarioService implements UserDetailsService {
         return new UsuarioSaida(usuario);
     }
 
-    public List<UsuarioSaida> listar() {
-        return usuarioRepository.findAll().stream()
-                .map(UsuarioSaida::new).toList();
+    public Page<UsuarioSaida> listar(Pageable pageable) {
+        return usuarioRepository.findAll(pageable)
+                .map(UsuarioSaida::new);
     }
 
     public UsuarioSaida buscarPorId(long id) {
         var usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
         return new UsuarioSaida(usuario);
     }
 
     @Transactional
     public UsuarioSaida atualizar(long id,UsuarioAtualizacao usuarioAtualizacao) {
         var usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
         if(usuarioAtualizacao.nome() != null) {
             usuario.setNome(usuarioAtualizacao.nome());
         } else if(usuarioAtualizacao.senha() != null) {
