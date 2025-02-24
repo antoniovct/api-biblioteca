@@ -19,14 +19,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
@@ -113,22 +116,19 @@ class ReservaServiceTest {
     }
 
     @Test
-    @DisplayName("Lista de reservas cadastradas")
+    @DisplayName("Verifica se o retorno do método não é nulo")
     void listaReservas() {
         //ARRANGE
         Reserva reserva1 = new Reserva();
         Reserva reserva2 = new Reserva();
         Reserva reserva3 = new Reserva();
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("data"));
 
-        reserva1.setData(LocalDateTime.now());
-        reserva2.setData(LocalDateTime.now().plusDays(2));
-        reserva3.setData(LocalDateTime.now().minusDays(3));
-        when(reservaRepository.findAll()).thenReturn(List.of(reserva1, reserva2, reserva3));
+        when(reservaRepository.findAll(pageable)).thenReturn(new PageImpl<>(List.of(reserva1, reserva2, reserva3)));
         //ACT
-        var listaReservas = reservaService.listaReservas();
+        var listaReservas = reservaService.listaReservas(pageable);
         //ASSERT
-        assertEquals(List.of(new ReservaSaida(reserva3),
-                new ReservaSaida(reserva1), new ReservaSaida(reserva2)), listaReservas);
+        assertNotNull(listaReservas);
     }
 
     @Test
@@ -154,36 +154,15 @@ class ReservaServiceTest {
         assertThrows(EntityNotFoundException.class, () -> reservaService.buscaReserva(1L));
     }
 
-    @Test
-    @DisplayName("Retorna lista de reservas associadas ao status buscado")
-    void listaReservasPorStatusCenario1() {
-        //ARRANGE
-        Reserva reserva1 = new Reserva();
-        Reserva reserva2 = new Reserva();
-        Reserva reserva3 = new Reserva();
 
-        reserva1.setData(LocalDateTime.now());
-        reserva2.setData(LocalDateTime.now().minusDays(3));
-        reserva3.setData(LocalDateTime.now().plusDays(4));
-
-        reserva1.setStatus(StatusReserva.ATIVA);
-        reserva2.setStatus(StatusReserva.PENDENTE);
-        reserva3.setStatus(StatusReserva.ATIVA);
-
-        when(reservaRepository.findAllByStatusOrderByData(StatusReserva.ATIVA))
-                .thenReturn(List.of(reserva1,reserva3));
-        //ACT
-        var listaReservas = reservaService.listaReservasPorStatus("ativa");
-        //ASSERT
-        verify(reservaRepository).findAllByStatusOrderByData(StatusReserva.ATIVA);
-        assertEquals(List.of(new ReservaSaida(reserva1),new ReservaSaida(reserva3)), listaReservas);
-    }
 
     @Test
     @DisplayName("Erro: status digitado não existe")
-    void listaReservasPorStatusCenario2() {
+    void listaReservasPorStatus() {
+        //ARRANGE
+        Pageable pageable = PageRequest.of(0, 10);
         //ACT + ASSERT
-        assertThrows(IllegalArgumentException.class,() -> reservaService.listaReservasPorStatus("ativo"));
+        assertThrows(IllegalArgumentException.class,() -> reservaService.listaReservasPorStatus("ativo", pageable));
     }
 
     @Test

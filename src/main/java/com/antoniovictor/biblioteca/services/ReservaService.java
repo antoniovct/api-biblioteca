@@ -11,6 +11,10 @@ import com.antoniovictor.biblioteca.repository.ReservaRepository;
 import com.antoniovictor.biblioteca.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -50,11 +54,11 @@ public class ReservaService {
         }
     }
 
-    public List<ReservaSaida> listaReservas() {
-        return reservaRepository.findAll().stream()
-                .map(ReservaSaida::new)
-                .sorted(Comparator.comparing(ReservaSaida::data))
-                .toList();
+    public Page<ReservaSaida> listaReservas(Pageable pageable) {
+        var pageableSort = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("data"));
+
+        return reservaRepository.findAll(pageableSort)
+                .map(ReservaSaida::new);
     }
 
     public ReservaSaida buscaReserva(long idReserva) {
@@ -63,13 +67,12 @@ public class ReservaService {
         return new ReservaSaida(reserva);
     }
 
-    public List<ReservaSaida> listaReservasPorStatus(String statusReserva) {
+    public Page<ReservaSaida> listaReservasPorStatus(String statusReserva, Pageable pageable) {
         var listaDeStatus = Arrays.stream(StatusReserva.values()).toList().stream().map(Enum::name);
         if (listaDeStatus.anyMatch(s -> Objects.equals(s, statusReserva.toUpperCase()))) {
             var status = StatusReserva.valueOf(statusReserva.toUpperCase());
-            return reservaRepository.findAllByStatusOrderByData(status).stream()
-                    .map(ReservaSaida::new)
-                    .toList();
+            return reservaRepository.findAllByStatusOrderByData(status, pageable)
+                    .map(ReservaSaida::new);
         } else {
             throw new IllegalArgumentException("Digite um valor de status valido: ativa, pendente, finalizada ou expirada");
         }

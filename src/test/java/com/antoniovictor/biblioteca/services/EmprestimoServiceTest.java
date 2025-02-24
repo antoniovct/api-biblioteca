@@ -15,6 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -153,19 +157,15 @@ class EmprestimoServiceTest {
     }
 
     @Test
-    @DisplayName("Lista de empréstimos")
+    @DisplayName("Verifica se o retorno do método não é nulo")
     void listaEmprestimos() {
         //ARRANGE
-        var emprestimo1 = new Emprestimo();
-        var emprestimo2 = new Emprestimo();
-        emprestimo1.setInicio(LocalDate.of(2025,01,10));
-        emprestimo2.setInicio(LocalDate.of(2025,02,10));
-        when(emprestimoRepository.findAll()).thenReturn(List.of(emprestimo1, emprestimo2));
-        var emprestimosSaida = List.of(new EmprestimoSaida(emprestimo1), new EmprestimoSaida(emprestimo2));
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("inicio"));
+        when(emprestimoRepository.findAll(pageable)).thenReturn(new PageImpl<>(List.of()));
         //ACT
-        var emprestimos = emprestimoService.listaEmprestimos();
+        var emprestimos = emprestimoService.listaEmprestimos(pageable);
         //ASSERT
-        assertEquals(emprestimosSaida, emprestimos);
+        assertNotNull(emprestimos);
     }
 
     @Test

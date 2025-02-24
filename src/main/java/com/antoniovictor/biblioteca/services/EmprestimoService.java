@@ -10,6 +10,7 @@ import com.antoniovictor.biblioteca.repository.LivroRepository;
 import com.antoniovictor.biblioteca.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -65,11 +66,10 @@ public class EmprestimoService {
         }
     }
 
-    public List<EmprestimoSaida> listaEmprestimos() {
-        return emprestimoRepository.findAll().stream()
-                .sorted(Comparator.comparing(Emprestimo::getInicio))
-                .map(EmprestimoSaida::new)
-                .toList();
+    public Page<EmprestimoSaida> listaEmprestimos(Pageable pageable) {
+        var pageableSorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("inicio"));
+        return emprestimoRepository.findAll(pageableSorted)
+                .map(EmprestimoSaida::new);
     }
 
 

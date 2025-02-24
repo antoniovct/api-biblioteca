@@ -6,6 +6,8 @@ import com.antoniovictor.biblioteca.dto.ReservaSaida;
 import com.antoniovictor.biblioteca.error.AtualizacaoReservaException;
 import com.antoniovictor.biblioteca.error.CadastroReservaException;
 import com.antoniovictor.biblioteca.services.ReservaService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -34,8 +36,8 @@ public class ReservaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ReservaSaida>> listarReservas() {
-        var reservas = reservaService.listaReservas();
+    public ResponseEntity<Page<ReservaSaida>> listarReservas(Pageable pageable) {
+        var reservas = reservaService.listaReservas(pageable);
         return ResponseEntity.ok(reservas);
     }
 
@@ -46,8 +48,8 @@ public class ReservaController {
     }
 
     @GetMapping("/status")
-    public ResponseEntity<List<ReservaSaida>> listarReservasPorStatus(@RequestParam(name = "status") String status) {
-        var reservas = reservaService.listaReservasPorStatus(status);
+    public ResponseEntity<Page<ReservaSaida>> listarReservasPorStatus(@RequestParam(name = "status") String status, Pageable pageable) {
+        var reservas = reservaService.listaReservasPorStatus(status, pageable);
         return ResponseEntity.ok(reservas);
     }
 

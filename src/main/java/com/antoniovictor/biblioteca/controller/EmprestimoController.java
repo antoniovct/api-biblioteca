@@ -5,6 +5,8 @@ import com.antoniovictor.biblioteca.dto.EmprestimoSaida;
 import com.antoniovictor.biblioteca.error.CadastroEmprestimoException;
 import com.antoniovictor.biblioteca.error.RenovacaoEmprestimoException;
 import com.antoniovictor.biblioteca.services.EmprestimoService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -32,8 +34,8 @@ public class EmprestimoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EmprestimoSaida>> listarEmprestimos() {
-        var emprestimos = emprestimoService.listaEmprestimos();
+    public ResponseEntity<Page<EmprestimoSaida>> listarEmprestimos(Pageable pageable) {
+        var emprestimos = emprestimoService.listaEmprestimos(pageable);
         return ResponseEntity.ok(emprestimos);
     }
 
