@@ -5,6 +5,8 @@ import com.antoniovictor.biblioteca.dto.LivroEntrada;
 import com.antoniovictor.biblioteca.dto.LivroSaida;
 import com.antoniovictor.biblioteca.services.LivroService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -29,8 +31,8 @@ public class LivroController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LivroSaida>> listarLivros() {
-        var livros = livroService.listarLivros();
+    public ResponseEntity<Page<LivroSaida>> listarLivros(Pageable pageable) {
+        var livros = livroService.listarLivros(pageable);
         return ResponseEntity.ok(livros);
     }
 
@@ -41,14 +43,14 @@ public class LivroController {
     }
 
     @GetMapping("/categorias")
-    public ResponseEntity<List<LivroSaida>> buscarLivrosPorCategoria(@RequestParam("categoria") String categoria) {
-        var livros = livroService.listarLivrosPorCategoria(categoria);
+    public ResponseEntity<Page<LivroSaida>> buscarLivrosPorCategoria(@RequestParam("categoria") String categoria, Pageable pageable) {
+        var livros = livroService.listarLivrosPorCategoria(categoria, pageable);
         return ResponseEntity.ok(livros);
     }
 
     @GetMapping("/livro")
-    public ResponseEntity<List<LivroSaida>> buscarLivrosPorTitulo(@RequestParam("titulo") String titulo) {
-        var livros = livroService.listarLivrosPorNome(titulo);
+    public ResponseEntity<Page<LivroSaida>> buscarLivrosPorTitulo(@RequestParam("titulo") String titulo, Pageable pageable) {
+        var livros = livroService.listarLivrosPorNome(titulo, pageable);
         return ResponseEntity.ok(livros);
     }
 

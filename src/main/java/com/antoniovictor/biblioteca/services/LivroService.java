@@ -3,13 +3,17 @@ package com.antoniovictor.biblioteca.services;
 import com.antoniovictor.biblioteca.dto.LivroAtualizacao;
 import com.antoniovictor.biblioteca.dto.LivroEntrada;
 import com.antoniovictor.biblioteca.dto.LivroSaida;
+import com.antoniovictor.biblioteca.entities.Categoria;
 import com.antoniovictor.biblioteca.entities.Livro;
 import com.antoniovictor.biblioteca.repository.LivroRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -27,10 +31,9 @@ public class LivroService {
         return new LivroSaida(livro);
     }
 
-    public List<LivroSaida> listarLivros() {
-        return livroRepository.findAll().stream()
-                .map(LivroSaida::new)
-                .toList();
+    public Page<LivroSaida> listarLivros(Pageable pageable) {
+        return livroRepository.findAll(pageable)
+                .map(LivroSaida::new);
     }
 
     public LivroSaida buscarLivroPorId(long id) {
@@ -39,21 +42,26 @@ public class LivroService {
         return new LivroSaida(livro);
     }
 
-    public List<LivroSaida> listarLivrosPorCategoria(String categoria) {
-        List<Optional<Livro>> livros = livroRepository.findAllByCategoriaContaining(categoria);
-        if (livros.isEmpty()) {
-            throw new EntityNotFoundException("Nenhum livro encontrado!");
+    public Page<LivroSaida> listarLivrosPorCategoria(String categoria, Pageable pageable) {
+        var categoriaExistente = Arrays.stream(Categoria.values()).anyMatch(c -> Objects.equals(c.name(), categoria.toUpperCase()));
+        if (categoriaExistente) {
+            Page<Optional<Livro>> livros = livroRepository.findAllByCategoriaContainingIgnoreCase(categoria,pageable);
+            if (livros.isEmpty()) {
+                throw new EntityNotFoundException("Nenhum livro encontrado!");
+            } else {
+                return livros.map(Optional::get).map(LivroSaida::new);
+            }
         } else {
-            return livros.stream().map(Optional::get).map(LivroSaida::new).toList();
+            throw new IllegalArgumentException("Digite um valor válido de categoria: ficcao, romance, drama, terror, aventura");
         }
     }
 
-    public List<LivroSaida> listarLivrosPorNome(String nome) {
-        List<Optional<Livro>> livros = livroRepository.findAllByTituloContaining(nome);
+    public Page<LivroSaida> listarLivrosPorNome(String nome, Pageable pageable) {
+        Page<Optional<Livro>> livros = livroRepository.findAllByTituloContaining(nome, pageable);
         if (livros.isEmpty()) {
             throw new EntityNotFoundException("Nenhum livro encontrado!");
         } else {
-            return livros.stream().map(Optional::get).map(LivroSaida::new).toList();
+            return livros.map(Optional::get).map(LivroSaida::new);
         }
     }
 
