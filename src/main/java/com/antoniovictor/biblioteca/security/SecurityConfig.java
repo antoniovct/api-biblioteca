@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -26,9 +27,9 @@ import java.security.interfaces.RSAPublicKey;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${public.key}")
+    @Value("classpath:key.pub")
     private  RSAPublicKey publicKey;
-    @Value("${private.key}")
+    @Value("classpath:priv.key")
     private  RSAPrivateKey privateKey;
 
     @Bean
@@ -37,11 +38,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST,"/login").permitAll()
-                        .requestMatchers(HttpMethod.POST,"usuarios/cadastrar").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "usuarios/usuario/{id}").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "livros/cadastrar").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "livros/livro/{id}").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "livros/livro/{id}").hasRole("ADMIN")
+                        .requestMatchers("usuarios/**").hasRole("ADMIN")
+                       // .requestMatchers(HttpMethod.DELETE, "usuarios/usuario/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "livros/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "livros/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "livros/**").hasRole("ADMIN")
+                        .requestMatchers("/emprestimos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "reservas/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "reservas/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(auth -> auth.jwt(Customizer.withDefaults()))

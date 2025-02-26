@@ -106,7 +106,7 @@ public class EmprestimoService {
             double valorMulta = diasEmAtraso * 2.0;
             emprestimo.setMulta(valorMulta);
         }
-        emprestimo.devolver();
+        emprestimo.setStatus(StatusEmprestimo.FINALIZADO);
         Livro livro = emprestimo.getLivro();
         if (Boolean.FALSE.equals(livro.getDisponivel())) {
                 livro.getReservas().stream()

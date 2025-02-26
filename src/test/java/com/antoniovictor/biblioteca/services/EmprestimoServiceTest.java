@@ -9,6 +9,7 @@ import com.antoniovictor.biblioteca.repository.EmprestimoRepository;
 import com.antoniovictor.biblioteca.repository.LivroRepository;
 import com.antoniovictor.biblioteca.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class EmprestimoServiceTest {
 
+    private Usuario usuario;
+    private Livro livro;
     @InjectMocks
     private EmprestimoService emprestimoService;
     @Mock
@@ -42,32 +45,32 @@ class EmprestimoServiceTest {
     @Mock
     private  LivroRepository livroRepository;
 
+    @BeforeEach
+    void setUp() {
+        usuario = new Usuario(1L, "Antonio Victor", "victor@admin.com","123", "04274656136", new ArrayList<>(),true,new ArrayList<>());
+        livro = new Livro(1L, "O Senhor dos Anéis", "J.R.R. Tolkien", Categoria.FICCAO, 10, true, new ArrayList<>(), new ArrayList<>());
+    }
+
     @Test
-    @DisplayName("Empréstimo bem sucedido")
+    @DisplayName("Verifica se o retorno do método não é nulo, se o empréstimo foi salvo e se os dados estão corretos")
     void novoEmprestimoCenario1() throws CadastroEmprestimoException {
         //ARRANGE
-        Usuario usuario = new Usuario();
-        Livro livro = new Livro();
-        livro.setDisponivel(true);
-        livro.setEstoque(1);
-        EmprestimoEntrada emprestimoEntrada = new EmprestimoEntrada(1l,1l);
-        when(usuarioRepository.findById(1l)).thenReturn(Optional.of(usuario));
-        when(livroRepository.findById(1l)).thenReturn(Optional.of(livro));
+        EmprestimoEntrada emprestimoEntrada = new EmprestimoEntrada(1L, 1L);
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(livroRepository.findById(1L)).thenReturn(Optional.of(livro));
         //ACT
         EmprestimoSaida emprestimoSaida = emprestimoService.novoEmprestimo(emprestimoEntrada);
         //ASSERT
         assertNotNull(emprestimoSaida);
         verify(emprestimoRepository).save(any(Emprestimo.class));
+        assertEquals(livro.getTitulo(), emprestimoSaida.livro().getTitulo());
+        assertEquals(usuario.getNome(), emprestimoSaida.usuario().getNome());
     }
 
     @Test
-    @DisplayName("Erro: Usuário tem empréstimos pendentes")
+    @DisplayName("Verifica se o método lança exceção ao tentar realizar um empréstimo ao usuário com empréstimo pendente")
     void novoEmprestimoCenario2() {
         //ARRANGE
-        Usuario usuario = new Usuario();
-        Livro livro = new Livro();
-        livro.setDisponivel(true);
-        livro.setEstoque(1);
         usuario.setEmprestimos(List.of(new Emprestimo(usuario, livro)));
         usuario.getEmprestimos().getFirst().setStatus(StatusEmprestimo.PENDENTE);
         EmprestimoEntrada emprestimoEntrada = new EmprestimoEntrada(1L, 1L);
@@ -79,13 +82,9 @@ class EmprestimoServiceTest {
     }
 
     @Test
-    @DisplayName("Erro: Usuário já tem dois empréstimos ativos")
+    @DisplayName("Verifica se o método lança exceção ao tentar realizar um empréstimo ao usuário com 2 empréstimos ativos")
     void novoEmprestimoCenario3() {
         //ARRANGE
-        Usuario usuario = new Usuario();
-        Livro livro = new Livro();
-        livro.setDisponivel(true);
-        livro.setEstoque(1);
         usuario.setEmprestimos(List.of(new Emprestimo(usuario, livro), new Emprestimo(usuario, livro)));
         usuario.getEmprestimos().forEach(e -> e.setStatus(StatusEmprestimo.ATIVO));
         EmprestimoEntrada emprestimoEntrada = new EmprestimoEntrada(1L, 1L);
@@ -97,20 +96,15 @@ class EmprestimoServiceTest {
     }
 
     @Test
-    @DisplayName("Erro: Reserva ativa pertence a outro usuário")
+    @DisplayName("Verifica se o método lança exceção ao tentar realizar um empréstimo de um livro com reserva ativa para outro usuário")
     void novoEmprestimoCenario4() {
         //ARRANGE
-        Usuario usuario1 = new Usuario();
-        usuario1.setId(1L);
         Usuario usuario2 = new Usuario();
         usuario2.setId(2L);
-        Livro livro = new Livro();
-        livro.setDisponivel(true);
-        livro.setEstoque(1);
         livro.setReservas(List.of(new Reserva(usuario2, livro)));
         livro.getReservas().forEach(r -> r.setStatus(StatusReserva.ATIVA));
         EmprestimoEntrada emprestimoEntrada = new EmprestimoEntrada(1L, 1L);
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario1));
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
         when(livroRepository.findById(1L)).thenReturn(Optional.of(livro));
         //ACT & ASSERT
         assertThrows(CadastroEmprestimoException.class,
@@ -118,7 +112,7 @@ class EmprestimoServiceTest {
     }
 
     @Test
-    @DisplayName("Erro: Usuário não encontrado")
+    @DisplayName("Verifica se o método lança exceção por usuário não encontrado")
     void novoEmprestimoCenario5() {
         //ARRANGE
         EmprestimoEntrada emprestimoEntrada = new EmprestimoEntrada(1L, 1L);
@@ -129,7 +123,7 @@ class EmprestimoServiceTest {
     }
 
     @Test
-    @DisplayName("Erro: Livro não encontrado")
+    @DisplayName("Verifica se o método lança exceção por livro não encontrado")
     void novoEmprestimoCenario6() {
         //ARRANGE
         EmprestimoEntrada emprestimoEntrada = new EmprestimoEntrada(1L, 1L);
@@ -141,11 +135,9 @@ class EmprestimoServiceTest {
     }
 
     @Test
-    @DisplayName("Erro: Livro não está disponível")
+    @DisplayName("Verifica se o método lança exceção por livro não disponível")
     void novoEmprestimoCenario7() {
         //ARRANGE
-        Usuario usuario = new Usuario();
-        Livro livro = new Livro();
         livro.setDisponivel(false);
         livro.setEstoque(0);
         EmprestimoEntrada emprestimoEntrada = new EmprestimoEntrada(1L, 1L);
@@ -157,19 +149,37 @@ class EmprestimoServiceTest {
     }
 
     @Test
-    @DisplayName("Verifica se o retorno do método não é nulo")
+    @DisplayName("Verifica se o retorno do método não é nulo e se a lista de empréstimos está ordenada")
     void listaEmprestimos() {
-        //ARRANGE
+        // ARRANGE
+        var emprestimo1 = new Emprestimo(usuario, livro);
+        var emprestimo2 = new Emprestimo(usuario, livro);
+        var emprestimo3 = new Emprestimo(usuario, livro);
+
+        emprestimo1.setInicio(LocalDate.now().minusDays(1));
+        emprestimo2.setInicio(LocalDate.now().minusDays(2));
+        emprestimo3.setInicio(LocalDate.now().minusDays(3));
+
         Pageable pageable = PageRequest.of(0, 10, Sort.by("inicio"));
-        when(emprestimoRepository.findAll(pageable)).thenReturn(new PageImpl<>(List.of()));
-        //ACT
+
+        var emprestimosOrdenados = List.of(emprestimo3, emprestimo2, emprestimo1); // Ordenação esperada
+        var emprestimosSaidaEsperados = emprestimosOrdenados.stream()
+                .map(EmprestimoSaida::new)
+                .toList();
+
+        when(emprestimoRepository.findAll(pageable)).thenReturn(new PageImpl<>(emprestimosOrdenados, pageable, 3));
+
+        // ACT
         var emprestimos = emprestimoService.listaEmprestimos(pageable);
-        //ASSERT
+
+        // ASSERT
         assertNotNull(emprestimos);
+        assertIterableEquals(emprestimosSaidaEsperados, emprestimos.getContent());
     }
 
+
     @Test
-    @DisplayName("Empréstimo com id solicitado")
+    @DisplayName("Verifica se o retorno do método não é nulo e se os dados estão corretos")
     void buscarEmprestimoPorIdCenario1() {
         //ARRANGE
         Emprestimo emprestimo = new Emprestimo();
@@ -177,11 +187,12 @@ class EmprestimoServiceTest {
         //ACT
         var emprestimoSaida = emprestimoService.buscarEmprestimoPorId(1L);
         //ASSERT
+        assertNotNull(emprestimoSaida);
         assertEquals(new EmprestimoSaida(emprestimo), emprestimoSaida);
     }
 
     @Test
-    @DisplayName("Erro: Empréstimo não encontrado")
+    @DisplayName("Verifica se o método lança exceção por empréstimo não encontrado")
     void buscarEmprestimoPorIdCenario2() {
         //ARRANGE
         when(emprestimoRepository.findById(1L)).thenReturn(Optional.empty());
@@ -190,11 +201,10 @@ class EmprestimoServiceTest {
     }
 
     @Test
-    @DisplayName("Renovação bem sucedida")
+    @DisplayName("Verifica se o método de renovação é chamado")
     void renovarEmprestimoCenario1() throws RenovacaoEmprestimoException {
         //ARRANGE
         Emprestimo emprestimo = mock(Emprestimo.class);
-        Livro livro = new Livro();
         when(emprestimo.getLivro()).thenReturn(livro);
         when(emprestimoRepository.findById(1L)).thenReturn(Optional.of(emprestimo));
         //ACT
@@ -204,11 +214,10 @@ class EmprestimoServiceTest {
     }
 
     @Test
-    @DisplayName("Erro: reserva ativa para o livro")
-    void renovarEmprestimoCenario2() throws RenovacaoEmprestimoException {
+    @DisplayName("Verifica se o método lança exceção por reserva pendente")
+    void renovarEmprestimoCenario2() {
         //ARRANGE
         Emprestimo emprestimo = new Emprestimo();
-        Livro livro = new Livro();
         emprestimo.setLivro(livro);
         livro.setReservas(List.of(new Reserva()));
         livro.getReservas().forEach(r -> r.setStatus(StatusReserva.PENDENTE));
@@ -218,52 +227,45 @@ class EmprestimoServiceTest {
     }
 
     @Test
-    @DisplayName("Devolução bem sucedida")
+    @DisplayName("Verifica se o estoque do livro é atualizado e o empréstimo finalizado")
     void devolverEmprestimoCenario1() {
         //ARRANGE
-        Emprestimo emprestimo = mock(Emprestimo.class);
-        Livro livro = mock(Livro.class);
-        when(livro.getDisponivel()).thenReturn(true);
-        when(emprestimo.getLivro()).thenReturn(livro);
-        when(emprestimo.getFim()).thenReturn(LocalDate.now());
+        Emprestimo emprestimo = new Emprestimo(usuario, livro);
+        livro.addEmprestimo(emprestimo);
         when(emprestimoRepository.findById(1L)).thenReturn(Optional.of(emprestimo));
         //ACT
         emprestimoService.devolverEmprestimo(1L);
         //ASSERT
-        verify(emprestimo).devolver();
-        verify(livro).setEstoque(anyInt());
+        assertEquals(10, livro.getEstoque());
+        assertEquals(StatusEmprestimo.FINALIZADO, emprestimo.getStatus());
     }
 
     @Test
-    @DisplayName("Geração de multa")
+    @DisplayName("Verifica se a multa é aplicada")
     void devolverEmprestimoCenario2() {
         //ARRANGE
-        Emprestimo emprestimo = mock(Emprestimo.class);
-        Livro livro = mock(Livro.class);
-        when(livro.getDisponivel()).thenReturn(true);
-        when(emprestimo.getLivro()).thenReturn(livro);
-        when(emprestimo.getFim()).thenReturn(LocalDate.now().minusDays(5));
+        Emprestimo emprestimo = new Emprestimo(usuario, livro);
+        emprestimo.setFim(LocalDate.now().minusDays(5));
         when(emprestimoRepository.findById(1L)).thenReturn(Optional.of(emprestimo));
         //ACT
         emprestimoService.devolverEmprestimo(1L);
         //ASSERT
-        verify(emprestimo).setMulta(10.0);
+        assertTrue(emprestimo.getMulta() > 0);
+        assertEquals(10.0, emprestimo.getMulta());
     }
 
     @Test
-    @DisplayName("Ativação automática da reserva")
+    @DisplayName("Verifica se as reservas são atualizadas")
     void devolverEmprestimoCenario3() {
         //ARRANGE
-        Emprestimo emprestimo = new Emprestimo();
-        Livro livro = new Livro();
-        Reserva reserva1 = new Reserva();
-        Reserva reserva2 = new Reserva();
+        Emprestimo emprestimo = new Emprestimo(usuario, livro);
+        Reserva reserva1 = new Reserva(usuario, livro);
+        Reserva reserva2 = new Reserva(usuario, livro);
+        livro.setReservas(List.of(reserva1, reserva2));
 
         emprestimo.setFim(LocalDate.now());
-        emprestimo.setLivro(livro);
         livro.setDisponivel(false);
         livro.setEstoque(0);
-        livro.setReservas(List.of(reserva1, reserva2));
         livro.getReservas().forEach(r -> r.setStatus(StatusReserva.PENDENTE));
         reserva1.setData(LocalDateTime.now().minusDays(1));
         reserva2.setData(LocalDateTime.now());
@@ -277,7 +279,7 @@ class EmprestimoServiceTest {
     }
 
     @Test
-    @DisplayName("Erro: Empréstimo não encontrado")
+    @DisplayName("Verifica se o método lança exceção por empréstimo não encontrado")
     void devolverEmprestimoCenario4() {
         //ARRANGE
         when(emprestimoRepository.findById(anyLong())).thenReturn(Optional.empty());
@@ -286,7 +288,7 @@ class EmprestimoServiceTest {
     }
 
     @Test
-    @DisplayName("Método delete é chamado")
+    @DisplayName("Verifica se o método de remoção é chamado")
     void removerEmprestimo() {
         //ACT
         emprestimoService.removerEmprestimo(1L);

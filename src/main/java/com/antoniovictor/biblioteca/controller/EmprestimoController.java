@@ -5,8 +5,10 @@ import com.antoniovictor.biblioteca.dto.EmprestimoSaida;
 import com.antoniovictor.biblioteca.error.CadastroEmprestimoException;
 import com.antoniovictor.biblioteca.error.RenovacaoEmprestimoException;
 import com.antoniovictor.biblioteca.services.EmprestimoService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -23,7 +25,7 @@ public class EmprestimoController {
     }
     
     @PostMapping
-    public ResponseEntity novoEmprestimo(@RequestBody EmprestimoEntrada emprestimoEntrada, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity novoEmprestimo(@RequestBody @Valid EmprestimoEntrada emprestimoEntrada, UriComponentsBuilder uriBuilder) {
         try {
             var emprestimo = emprestimoService.novoEmprestimo(emprestimoEntrada);
             var uri = uriBuilder.path("/emprestimo/{id}").buildAndExpand(emprestimo.id()).toUri();
@@ -34,7 +36,7 @@ public class EmprestimoController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<EmprestimoSaida>> listarEmprestimos(Pageable pageable) {
+    public ResponseEntity<Page<EmprestimoSaida>> listarEmprestimos(@PageableDefault(sort = "inicio", size = 20) Pageable pageable) {
         var emprestimos = emprestimoService.listaEmprestimos(pageable);
         return ResponseEntity.ok(emprestimos);
     }
@@ -55,7 +57,7 @@ public class EmprestimoController {
         }
     }
 
-    @PutMapping("/emprestimo/{id}/devolucao")
+    @PatchMapping("/emprestimo/{id}/devolucao")
     public ResponseEntity<String> devolverEmprestimo(@PathVariable long id) {
         emprestimoService.devolverEmprestimo(id);
         return ResponseEntity.ok("Empréstimo devolvido com sucesso!");

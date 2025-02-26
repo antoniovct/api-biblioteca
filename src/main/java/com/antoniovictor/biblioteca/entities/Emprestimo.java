@@ -40,10 +40,6 @@ public class Emprestimo {
     }
 
 
-    public void devolver() {
-        this.status = StatusEmprestimo.FINALIZADO;
-    }
-
     public void renovar() {
         this.fim = LocalDate.now().plusWeeks(2);
     }
