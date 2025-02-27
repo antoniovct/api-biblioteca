@@ -33,18 +33,30 @@ class LivroServiceTest {
     private LivroRepository livroRepository;
 
     @Test
-    @DisplayName("Cadastro do livro bem sucedido")
-    void cadastrarLivro() {
+    @DisplayName("Verifica se o livro foi cadastrado corretamente e se o método save foi chamado")
+    void cadastrarLivroCenario1() {
         //ARRANGE
+        var livroEntrada = new LivroEntrada("Game of Thrones", "George R. R. Martin", "ficcao", 10);
+        when(livroRepository.save(any(Livro.class))).thenReturn(new Livro(livroEntrada));
         //ACT
-        var livroSaida = livroService.cadastrarLivro(mock(LivroEntrada.class));
+        var livroSaida = livroService.cadastrarLivro(livroEntrada);
         //ASSERT
         verify(livroRepository).save(any(Livro.class));
         assertNotNull(livroSaida);
+        assertEquals(livroEntrada.titulo(), livroSaida.titulo());
     }
 
     @Test
-    @DisplayName("Busca por todos os livros")
+    @DisplayName("Verifica se deu erro ao cadastrar um livro com categoria inexistente")
+    void cadastrarLivroCenario2() {
+        //ARRANGE
+        var livroEntrada = new LivroEntrada("Game of Thrones", "George R. R. Martin", "fantasia", 10);
+        //ACT + ASSERT
+        assertThrows(IllegalArgumentException.class, () -> livroService.cadastrarLivro(livroEntrada));
+    }
+
+    @Test
+    @DisplayName("Verifica se a listagem de livros foi bem sucedida")
     void listarLivros() {
         //ARRANGE
         Pageable pageable = PageRequest.of(0, 10);
@@ -58,7 +70,7 @@ class LivroServiceTest {
     }
 
     @Test
-    @DisplayName("Busca um livro pelo id")
+    @DisplayName("Verifica se a busca de livro por id foi bem sucedida")
     void buscarLivroPorIdCenario1() {
         //ARRANGE
         when(livroRepository.findById(anyLong())).thenReturn(Optional.of(new Livro()));
@@ -70,7 +82,7 @@ class LivroServiceTest {
     }
 
     @Test
-    @DisplayName("Erro: livro não encontrado")
+    @DisplayName("Verifica se deu erro ao buscar um livro inexistente")
     void buscarLivroPorIdCenario2() {
         //ARRANGE
         when(livroRepository.findById(anyLong())).thenReturn(Optional.empty());
@@ -92,7 +104,7 @@ class LivroServiceTest {
     }
 
     @Test
-    @DisplayName("Erro: nenhum livro encontrado")
+    @DisplayName("Verifica se deu erro ao buscar livros")
     void listarLivrosPorCategoriaCenario2() {
         //ARRANGE
         Page<Optional<Livro>> livros = spy(new PageImpl<>(List.of()));
@@ -104,7 +116,7 @@ class LivroServiceTest {
     }
 
     @Test
-    @DisplayName("Erro: categoria não existe")
+    @DisplayName("Verifica se deu erro ao buscar livros de categoria inexistente")
     void listarLivrosPorCategoriaCenario3() {
         //ARRANGE
         Pageable pageable = PageRequest.of(0, 10);
@@ -113,7 +125,7 @@ class LivroServiceTest {
     }
 
     @Test
-    @DisplayName("Busca livros pelo nome indicado")
+    @DisplayName("Verifica se a busca de livros por nome foi bem sucedida")
     void listarLivrosPorNomeCenario1() {
         //ARRANGE
         Pageable pageable = PageRequest.of(0, 10);
@@ -126,7 +138,7 @@ class LivroServiceTest {
     }
 
     @Test
-    @DisplayName("Erro: nenhum livro encontrado")
+    @DisplayName("Verifica se deu erro ao buscar livros por nome inexistente")
     void listarLivrosPorNomeCenario2() {
         //ARRANGE
         Pageable pageable = PageRequest.of(0, 10);
@@ -136,7 +148,7 @@ class LivroServiceTest {
     }
 
     @Test
-    @DisplayName("Atualização de livro bem sucedida")
+    @DisplayName("Verifica se a atualização de livro foi bem sucedida")
     void atualizarLivroCenario1() {
         //ARRANGE
         Livro livro = spy(new Livro());
@@ -151,7 +163,7 @@ class LivroServiceTest {
     }
 
     @Test
-    @DisplayName("Erro: livro não encontrado")
+    @DisplayName("Verifica se deu erro ao atualizar um livro inexistente")
     void atualizarLivroCenario2() {
         //ARRANGE
         LivroAtualizacao livroAtualizacao = new LivroAtualizacao("teste",null,null,null);
@@ -161,6 +173,7 @@ class LivroServiceTest {
     }
 
     @Test
+    @DisplayName("Verifica se a exclusão de livro foi bem sucedida")
     void deletarLivro() {
         //ACT
         livroService.deletarLivro(1L);

@@ -1,11 +1,13 @@
 package com.antoniovictor.biblioteca.dto;
 
 import com.antoniovictor.biblioteca.entities.Categoria;
+import jakarta.validation.constraints.Positive;
 
 public record LivroAtualizacao(
         String titulo,
         String autor,
-        Categoria categoria,
+        String categoria,
+        @Positive
         Integer estoque
 ) {
 }

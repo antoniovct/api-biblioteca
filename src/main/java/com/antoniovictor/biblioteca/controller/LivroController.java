@@ -26,7 +26,7 @@ public class LivroController {
     @PostMapping("/cadastrar")
     public ResponseEntity<LivroSaida> cadastrar(@RequestBody @Valid LivroEntrada livroEntrada, UriComponentsBuilder uriBuilder) {
         var livro = livroService.cadastrarLivro(livroEntrada);
-        var uri = uriBuilder.path("/livro/{id}").buildAndExpand(livro.id()).toUri();
+        var uri = uriBuilder.path("/livros/livro/{id}").buildAndExpand(livro.id()).toUri();
         return ResponseEntity.created(uri).body(livro);
     }
 
@@ -55,7 +55,7 @@ public class LivroController {
     }
 
     @PutMapping("/livro/{id}")
-    public ResponseEntity<LivroSaida> atualizarLivro(@PathVariable("id") long id, @RequestBody LivroAtualizacao livroAtualizacao) {
+    public ResponseEntity<LivroSaida> atualizarLivro(@PathVariable("id") long id, @RequestBody @Valid LivroAtualizacao livroAtualizacao) {
         var livro = livroService.atualizarLivro(id, livroAtualizacao);
         return ResponseEntity.ok(livro);
     }

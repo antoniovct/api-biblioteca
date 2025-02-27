@@ -15,10 +15,13 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LivroService {
     private final LivroRepository livroRepository;
+    private final String mensagemErroCategoria = "Digite um valor válido de categoria: " +
+            Arrays.stream(Categoria.values()).map(Categoria::name).map(String::toLowerCase).collect(Collectors.joining(", "));
 
     public LivroService(LivroRepository livroRepository) {
         this.livroRepository = livroRepository;
@@ -26,6 +29,10 @@ public class LivroService {
 
     @Transactional
     public LivroSaida cadastrarLivro(LivroEntrada livroEntrada) {
+        var categoriaExistente = Arrays.stream(Categoria.values()).anyMatch(c -> Objects.equals(c.name(), livroEntrada.categoria().toUpperCase()));
+        if (!categoriaExistente) {
+            throw new IllegalArgumentException(mensagemErroCategoria);
+        }
         Livro livro = new Livro(livroEntrada);
         livroRepository.save(livro);
         return new LivroSaida(livro);
@@ -52,7 +59,7 @@ public class LivroService {
                 return livros.map(Optional::get).map(LivroSaida::new);
             }
         } else {
-            throw new IllegalArgumentException("Digite um valor válido de categoria: ficcao, romance, drama, terror, aventura");
+            throw new IllegalArgumentException(mensagemErroCategoria);
         }
     }
 
@@ -74,7 +81,11 @@ public class LivroService {
         } else if (livroAtualizacao.titulo() != null) {
             livro.setTitulo(livroAtualizacao.titulo());
         } else if(livroAtualizacao.categoria() != null) {
-            livro.setCategoria(livroAtualizacao.categoria());
+            var categoriaExistente = Arrays.stream(Categoria.values()).anyMatch(c -> Objects.equals(c.name(), livroAtualizacao.categoria().toUpperCase()));
+            if (!categoriaExistente) {
+                throw new IllegalArgumentException(mensagemErroCategoria);
+            }
+            livro.setCategoria(Categoria.valueOf(livroAtualizacao.categoria().toUpperCase()));
         } else if(livroAtualizacao.estoque() != null) {
             livro.setEstoque(livroAtualizacao.estoque());
         }

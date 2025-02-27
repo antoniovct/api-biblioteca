@@ -33,7 +33,7 @@ public class Livro {
     public Livro(LivroEntrada livroEntrada) {
         this.titulo = livroEntrada.titulo();
         this.autor = livroEntrada.autor();
-        this.categoria = livroEntrada.categoria();
+        this.categoria = Categoria.valueOf(livroEntrada.categoria().toUpperCase());
         this.estoque = livroEntrada.quantidade();
         this.disponivel = true;
     }
