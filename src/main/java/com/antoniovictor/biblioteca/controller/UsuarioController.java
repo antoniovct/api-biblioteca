@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("usuarios")
@@ -26,7 +25,7 @@ public class UsuarioController {
     @PostMapping("cadastrar")
     public ResponseEntity<UsuarioSaida> cadastrar(@RequestBody @Valid UsuarioEntrada usuarioEntrada, UriComponentsBuilder uriBuilder) {
         var usuario = usuarioService.cadastrar(usuarioEntrada);
-        var uri = uriBuilder.path("/usuario/{id}").buildAndExpand(usuario.id()).toUri();
+        var uri = uriBuilder.path("usuarios/usuario/{id}").buildAndExpand(usuario.id()).toUri();
         return ResponseEntity.created(uri).body(usuario);
     }
 
@@ -51,7 +50,7 @@ public class UsuarioController {
     @PutMapping("/usuario/{id}/bloquear")
     public ResponseEntity<Void> bloquear(@PathVariable(value = "id") long id) {
         usuarioService.bloquear(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/usuario/{id}")
