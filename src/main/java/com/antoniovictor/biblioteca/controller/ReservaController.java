@@ -24,11 +24,11 @@ public class ReservaController {
         this.reservaService = reservaService;
     }
 
-    @PostMapping
+    @PostMapping("/adicionar")
     public ResponseEntity adicionarReserva(@RequestBody ReservaEntrada reservaEntrada, UriComponentsBuilder uriComponentsBuilder) {
         try {
             var reserva = reservaService.novaReserva(reservaEntrada.livroId(), reservaEntrada.usuarioId());
-            var uri = uriComponentsBuilder.path("/reservas/{id}").buildAndExpand(reserva.id()).toUri();
+            var uri = uriComponentsBuilder.path("/reservas/reserva/{id}").buildAndExpand(reserva.id()).toUri();
             return ResponseEntity.created(uri).build();
         } catch (CadastroReservaException e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
@@ -53,7 +53,7 @@ public class ReservaController {
         return ResponseEntity.ok(reservas);
     }
 
-    @PutMapping("/reserva/{id}")
+    @PatchMapping("/reserva/{id}")
     public ResponseEntity atualizarStatusReserva(@PathVariable("id") long id, @RequestBody ReservaAtualizacao reservaAtualizacao) {
         try {
             var reserva = reservaService.atualizarReserva(id, reservaAtualizacao);
