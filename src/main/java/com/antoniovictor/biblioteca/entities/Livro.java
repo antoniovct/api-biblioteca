@@ -6,12 +6,12 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id" )
 @Entity
 @Table(name = "livros")
 public class Livro {
@@ -52,5 +52,17 @@ public class Livro {
 
     public void removeReserva(Reserva reserva) {
         this.reservas.remove(reserva);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Livro livro)) return false;
+        return Objects.equals(id, livro.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

@@ -5,11 +5,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id" )
 @Entity
 @Table(name = "reservas")
 public class Reserva {
@@ -34,5 +34,17 @@ public class Reserva {
         this.usuario = usuario;
         this.livro = livro;
         this.status = StatusReserva.PENDENTE;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Reserva reserva)) return false;
+        return Objects.equals(id, reserva.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

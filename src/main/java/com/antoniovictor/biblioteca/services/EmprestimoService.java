@@ -22,11 +22,13 @@ public class EmprestimoService {
     private final EmprestimoRepository emprestimoRepository;
     private final UsuarioRepository usuarioRepository;
     private final LivroRepository livroRepository;
+    private final NotificacaoService notificacaoService;
 
-    public EmprestimoService(EmprestimoRepository emprestimoRepository, UsuarioRepository usuarioRepository, LivroRepository livroRepository) {
+    public EmprestimoService(EmprestimoRepository emprestimoRepository, UsuarioRepository usuarioRepository, LivroRepository livroRepository, NotificacaoService notificacaoService) {
         this.emprestimoRepository = emprestimoRepository;
         this.usuarioRepository = usuarioRepository;
         this.livroRepository = livroRepository;
+        this.notificacaoService = notificacaoService;
     }
 
     @Transactional
@@ -112,7 +114,10 @@ public class EmprestimoService {
                 livro.getReservas().stream()
                     .filter(r -> r.getStatus() == StatusReserva.PENDENTE)
                     .min(Comparator.comparing(Reserva::getData))
-                        .ifPresent(r -> r.setStatus(StatusReserva.ATIVA));
+                        .ifPresent(r -> {
+                            r.setStatus(StatusReserva.ATIVA);
+                            notificacaoService.notificarLivroDisponivel(r.getUsuario(), r.getLivro());
+                        });
         }
         livro.setEstoque(livro.getEstoque() + 1);
     }

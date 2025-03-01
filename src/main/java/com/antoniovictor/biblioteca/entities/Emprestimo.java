@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id" )
 @Entity
 @Table(name = "emprestimos")
 public class Emprestimo {
@@ -42,5 +42,17 @@ public class Emprestimo {
 
     public void renovar() {
         this.fim = LocalDate.now().plusWeeks(2);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Emprestimo that)) return false;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }
