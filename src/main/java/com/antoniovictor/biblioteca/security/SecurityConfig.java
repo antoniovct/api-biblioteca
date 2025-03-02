@@ -37,6 +37,7 @@ public class SecurityConfig {
         var http = httpSecurity
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/notificacao/**").permitAll()
                         .requestMatchers(HttpMethod.POST,"/login").permitAll()
                         .requestMatchers("usuarios/**").hasRole("ADMIN")
                        // .requestMatchers(HttpMethod.DELETE, "usuarios/usuario/{id}").hasRole("ADMIN")

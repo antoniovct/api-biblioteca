@@ -63,4 +63,5 @@ public class NotificacaoService {
     public void notificarLivroDisponivel(Usuario usuario, Livro livro) {
         enviarEmail(usuario.getEmail(), "Livro Disponível", "O livro " + livro.getTitulo() + " está disponível para empréstimo.");
     }
+
 }
