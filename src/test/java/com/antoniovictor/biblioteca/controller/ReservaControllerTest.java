@@ -50,7 +50,7 @@ class ReservaControllerTest {
 
     @BeforeEach
     void setUp() {
-        usuario = new Usuario(1L, "Antonio", "antonio@admin.com", "123456","04274656136", new ArrayList<>(), true, new ArrayList<>());
+        usuario = new Usuario(1L, "Antonio", "antonio@admin.com", "123456","04274656136", new ArrayList<>(), true, new ArrayList<>(), RoleUsuario.ADMIN, false, "123456");
         livro = new Livro(1L, "Construção do Eu", "Augusto Cury", Categoria.DRAMA, 10, true, new ArrayList<>(), new ArrayList<>());
         reservaEntrada = new ReservaEntrada(1L, 1L);
         objectMapper.registerModule(new JavaTimeModule());

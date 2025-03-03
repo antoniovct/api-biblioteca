@@ -62,7 +62,7 @@ class EmprestimoControllerTest {
 
         livro = new Livro(1L, "Construção do Eu", "Augusto Cury", Categoria.DRAMA, 10, true,
                 List.of(), List.of());
-        usuario = new Usuario(1L, "victor", "victor@admin.com", "123", "04274656136", List.of(), true, List.of());
+        usuario = new Usuario(1L, "victor", "victor@admin.com", "123", "04274656136", List.of(), true, List.of(), RoleUsuario.ADMIN, false, "123456");
 
         jsonEntrada = new EmprestimoEntrada(1L, 1L);
         jsonSaida =  new EmprestimoSaida(1L, LocalDate.now(), LocalDate.now().plusWeeks(2), 0.0, livro, StatusEmprestimo.ATIVO, usuario);

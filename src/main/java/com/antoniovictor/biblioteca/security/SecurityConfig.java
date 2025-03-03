@@ -17,6 +17,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
@@ -37,10 +39,9 @@ public class SecurityConfig {
         var http = httpSecurity
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/notificacao/**").permitAll()
                         .requestMatchers(HttpMethod.POST,"/login").permitAll()
                         .requestMatchers("usuarios/**").hasRole("ADMIN")
-                       // .requestMatchers(HttpMethod.DELETE, "usuarios/usuario/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "usuarios/usuario/{id}/verificar-email").permitAll()
                         .requestMatchers(HttpMethod.POST, "livros/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "livros/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "livros/**").hasRole("ADMIN")
@@ -49,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "reservas/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(auth -> auth.jwt(Customizer.withDefaults()))
+                .oauth2ResourceServer(auth -> auth.jwt(Customizer.withDefaults()).jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();
@@ -64,7 +65,23 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
+
         return NimbusJwtDecoder.withPublicKey(publicKey).build();
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter());
+        return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    public JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter() {
+        JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
+        converter.setAuthoritiesClaimName("authorities");
+        converter.setAuthorityPrefix("");
+        return converter;
     }
 
     @Bean

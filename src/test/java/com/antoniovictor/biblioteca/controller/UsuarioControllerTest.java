@@ -3,6 +3,7 @@ package com.antoniovictor.biblioteca.controller;
 import com.antoniovictor.biblioteca.dto.UsuarioAtualizacao;
 import com.antoniovictor.biblioteca.dto.UsuarioEntrada;
 import com.antoniovictor.biblioteca.dto.UsuarioSaida;
+import com.antoniovictor.biblioteca.entities.RoleUsuario;
 import com.antoniovictor.biblioteca.entities.Usuario;
 import com.antoniovictor.biblioteca.services.UsuarioService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,7 +45,7 @@ class UsuarioControllerTest {
 
     @BeforeEach
     void setUp() {
-        usuario = new Usuario(1L, "Antonio", "antonio@admin.com", "123456","04274656136", new ArrayList<>(), true, new ArrayList<>());
+        usuario = new Usuario(1L, "Antonio", "antonio@admin.com", "123456","04274656136", new ArrayList<>(), true, new ArrayList<>(), RoleUsuario.ADMIN, false, null);
     }
 
     @Test
@@ -52,7 +53,7 @@ class UsuarioControllerTest {
     @WithMockUser(roles = {"ADMIN"})
     void cadastrar() throws Exception {
         //ARRANGE
-        var usuarioEntrada = new UsuarioEntrada("Antonio", "antonio@admin.com", "123456", "04274656136");
+        var usuarioEntrada = new UsuarioEntrada("Antonio", "antonio@admin.com", "123456", "04274656136", "admin");
         when(usuarioService.cadastrar(usuarioEntrada)).thenReturn(new UsuarioSaida(usuario));
         //ACT + ASSERT
         mockMvc.perform(post("/usuarios/cadastrar").with(csrf())
@@ -94,7 +95,7 @@ class UsuarioControllerTest {
     @WithMockUser(roles = {"ADMIN"})
     void atualizar() throws Exception {
         //ARRANGE
-        var usuarioAtualizacao = new UsuarioAtualizacao("Antonio Victor", null, null);
+        var usuarioAtualizacao = new UsuarioAtualizacao("Antonio Victor", null, null, null);
         when(usuarioService.atualizar(1L, usuarioAtualizacao)).thenReturn(new UsuarioSaida(usuario));
         //ACT + ASSERT
         mockMvc.perform(put("/usuarios/usuario/1").with(csrf())
@@ -120,5 +121,18 @@ class UsuarioControllerTest {
         //ACT + ASSERT
         mockMvc.perform(delete("/usuarios/usuario/1").with(csrf()))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("Verifica se o método verificarEmail retorna status 200")
+    @WithMockUser(roles = {"ADMIN"})
+    void verificarEmail() {
+        //ARRANGE
+        when(usuarioService.validarEmail(1L, "123456")).thenReturn("Email verificado com sucesso");
+        //ACT + ASSERT
+        assertDoesNotThrow(() -> mockMvc.perform(post("/usuarios/usuario/1/verificar-email").with(csrf())
+                .param("codigo", "123456"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Email verificado com sucesso")));
     }
 }

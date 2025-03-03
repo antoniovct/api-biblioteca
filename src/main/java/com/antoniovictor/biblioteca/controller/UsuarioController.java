@@ -29,6 +29,12 @@ public class UsuarioController {
         return ResponseEntity.created(uri).body(usuario);
     }
 
+    @PostMapping("/usuario/{id}/verificar-email")
+    public ResponseEntity<String> verificarEmail(@PathVariable(name = "id") long id, @RequestParam(name = "codigo") String codigo) {
+        var resposta = usuarioService.validarEmail(id, codigo);
+        return ResponseEntity.ok(resposta);
+    }
+
     @GetMapping
     public ResponseEntity<Page<UsuarioSaida>> listar(Pageable pageable) {
         var usuarios = usuarioService.listar(pageable);

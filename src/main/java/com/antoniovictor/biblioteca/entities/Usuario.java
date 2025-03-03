@@ -32,6 +32,10 @@ public class Usuario implements UserDetails {
     private Boolean ativo;
     @OneToMany(mappedBy = "usuario",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reserva> reservas = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    private RoleUsuario role;
+    private Boolean emailVerificado = false;
+    private String codigoVerificacao;
 
     public Usuario(UsuarioEntrada usuarioEntrada, String senha) {
         this.nome = usuarioEntrada.nome();
@@ -39,6 +43,7 @@ public class Usuario implements UserDetails {
         this.senha = senha;
         this.cpf = usuarioEntrada.cpf();
         this.ativo = true;
+        this.role = RoleUsuario.valueOf(usuarioEntrada.role().toUpperCase());
     }
 
     public void addReserva(Reserva reserva) {
@@ -51,10 +56,10 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(this.email.contains("admin")) {
+        if(this.role == RoleUsuario.ADMIN) {
             return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }else {
-            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+            return List.of(new SimpleGrantedAuthority("ROLE_LEITOR"));
         }
     }
 

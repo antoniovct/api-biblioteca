@@ -47,7 +47,7 @@ class EmprestimoServiceTest {
 
     @BeforeEach
     void setUp() {
-        usuario = new Usuario(1L, "Antonio Victor", "victor@admin.com","123", "04274656136", new ArrayList<>(),true,new ArrayList<>());
+        usuario = new Usuario(1L, "Antonio Victor", "victor@admin.com","123", "04274656136", new ArrayList<>(),true,new ArrayList<>(), RoleUsuario.ADMIN, false, "");
         livro = new Livro(1L, "O Senhor dos Anéis", "J.R.R. Tolkien", Categoria.FICCAO, 10, true, new ArrayList<>(), new ArrayList<>());
     }
 

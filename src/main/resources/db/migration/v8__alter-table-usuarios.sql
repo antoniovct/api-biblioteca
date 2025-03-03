@@ -1,1 +1,0 @@
-alter table usuarios change column disponivel ativo boolean;

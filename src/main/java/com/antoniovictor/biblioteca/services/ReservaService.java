@@ -41,7 +41,7 @@ public class ReservaService {
         var usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
 
-        if(Boolean.TRUE.equals(!livro.getDisponivel()) && usuario.getReservas().stream().filter(r -> r.getStatus() == StatusReserva.ATIVA).toList().size() < 3)  {
+        if(Boolean.TRUE.equals(!livro.getDisponivel()) && usuario.getReservas().stream().filter(r -> r.getStatus() == StatusReserva.ATIVA && usuario.getAtivo() && usuario.getEmailVerificado()).toList().size() < 3)  {
             Reserva reserva = new Reserva(usuario, livro);
             reservaRepository.save(reserva);
             livro.addReserva(reserva);

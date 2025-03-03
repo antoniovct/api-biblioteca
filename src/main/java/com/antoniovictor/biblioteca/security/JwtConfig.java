@@ -21,7 +21,7 @@ public class JwtConfig {
     public String generateToken(Authentication auth) {
         var scopes = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(""));
+                .collect(Collectors.joining(" "));
         var claims = JwtClaimsSet.builder()
                 .issuer("api-biblioteca")
                 .subject(auth.getName())

@@ -11,6 +11,8 @@ public record UsuarioEntrada(
         @NotBlank
         String senha,
         @NotBlank @Pattern(regexp = "\\d{11}")
-        String cpf
+        String cpf,
+        @NotBlank
+        String role
 ) {
 }
