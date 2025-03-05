@@ -63,8 +63,8 @@ class EmprestimoServiceTest {
         //ASSERT
         assertNotNull(emprestimoSaida);
         verify(emprestimoRepository).save(any(Emprestimo.class));
-        assertEquals(livro.getTitulo(), emprestimoSaida.livro().getTitulo());
-        assertEquals(usuario.getNome(), emprestimoSaida.usuario().getNome());
+        assertEquals(livro.getTitulo(), emprestimoSaida.livro());
+        assertEquals(usuario.getNome(), emprestimoSaida.usuario());
     }
 
     @Test

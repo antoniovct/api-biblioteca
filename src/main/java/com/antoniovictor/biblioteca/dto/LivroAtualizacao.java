@@ -7,7 +7,6 @@ public record LivroAtualizacao(
         String titulo,
         String autor,
         String categoria,
-        @Positive
         Integer estoque
 ) {
 }

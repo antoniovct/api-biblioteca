@@ -96,7 +96,12 @@ public class UsuarioService implements UserDetailsService {
         var usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
-        usuario.setAtivo(false);
+        if (Boolean.TRUE.equals(usuario.getAtivo())) {
+            usuario.setAtivo(false);
+        } else {
+            usuario.setAtivo(true);
+        }
+
     }
 
     @Transactional

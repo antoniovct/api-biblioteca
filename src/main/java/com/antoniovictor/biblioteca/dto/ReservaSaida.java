@@ -12,12 +12,12 @@ public record ReservaSaida(
         LocalDateTime data,
         LocalDateTime inicio,
         LocalDateTime expiracao,
-        Usuario usuario,
-        Livro livro,
+        String usuario,
+        String livro,
         StatusReserva status
 ) {
     public ReservaSaida(Reserva reserva) {
         this(reserva.getId(), reserva.getData(),reserva.getInicio(),
-                reserva.getExpiracao(), reserva.getUsuario(), reserva.getLivro(), reserva.getStatus());
+                reserva.getExpiracao(), reserva.getUsuario().getNome(), reserva.getLivro().getTitulo(), reserva.getStatus());
     }
 }

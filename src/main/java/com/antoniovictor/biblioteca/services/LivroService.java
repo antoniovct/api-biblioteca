@@ -52,11 +52,11 @@ public class LivroService {
     public Page<LivroSaida> listarLivrosPorCategoria(String categoria, Pageable pageable) {
         var categoriaExistente = Arrays.stream(Categoria.values()).anyMatch(c -> Objects.equals(c.name(), categoria.toUpperCase()));
         if (categoriaExistente) {
-            Page<Optional<Livro>> livros = livroRepository.findAllByCategoriaContainingIgnoreCase(categoria,pageable);
+            Page<Livro> livros = livroRepository.findAllByCategoria(Categoria.valueOf(categoria.toUpperCase()),pageable);
             if (livros.isEmpty()) {
                 throw new EntityNotFoundException("Nenhum livro encontrado!");
             } else {
-                return livros.map(Optional::get).map(LivroSaida::new);
+                return livros.map(LivroSaida::new);
             }
         } else {
             throw new IllegalArgumentException(mensagemErroCategoria);
@@ -64,11 +64,11 @@ public class LivroService {
     }
 
     public Page<LivroSaida> listarLivrosPorNome(String nome, Pageable pageable) {
-        Page<Optional<Livro>> livros = livroRepository.findAllByTituloContaining(nome, pageable);
+        Page<Livro> livros = livroRepository.findAllByTituloContaining(nome, pageable);
         if (livros.isEmpty()) {
             throw new EntityNotFoundException("Nenhum livro encontrado!");
         } else {
-            return livros.map(Optional::get).map(LivroSaida::new);
+            return livros.map(LivroSaida::new);
         }
     }
 

@@ -65,7 +65,7 @@ class EmprestimoControllerTest {
         usuario = new Usuario(1L, "victor", "victor@admin.com", "123", "04274656136", List.of(), true, List.of(), RoleUsuario.ADMIN, false, "123456");
 
         jsonEntrada = new EmprestimoEntrada(1L, 1L);
-        jsonSaida =  new EmprestimoSaida(1L, LocalDate.now(), LocalDate.now().plusWeeks(2), 0.0, livro, StatusEmprestimo.ATIVO, usuario);
+        jsonSaida =  new EmprestimoSaida(1L, LocalDate.now(), LocalDate.now().plusWeeks(2), 0.0, livro.getTitulo(), StatusEmprestimo.ATIVO, usuario.getNome());
     }
 
 
@@ -89,8 +89,8 @@ class EmprestimoControllerTest {
         //ARRANGE
         Pageable pageable = PageRequest.of(0,20, Sort.by("inicio").ascending());
         Page<EmprestimoSaida> pageSaida = new PageImpl<>(List.of(
-                new EmprestimoSaida(1L, LocalDate.now().minusDays(5), LocalDate.now().minusDays(5).plusWeeks(2), 0.0, livro, StatusEmprestimo.ATIVO, usuario),
-                new EmprestimoSaida(2L, LocalDate.now(), LocalDate.now().plusWeeks(2), 0.0, livro, StatusEmprestimo.ATIVO, usuario)),pageable,2);
+                new EmprestimoSaida(1L, LocalDate.now().minusDays(5), LocalDate.now().minusDays(5).plusWeeks(2), 0.0, livro.getTitulo(), StatusEmprestimo.ATIVO, usuario.getNome()),
+                new EmprestimoSaida(2L, LocalDate.now(), LocalDate.now().plusWeeks(2), 0.0, livro.getTitulo(), StatusEmprestimo.ATIVO, usuario.getNome())),pageable,2);
         when(emprestimoService.listaEmprestimos(pageable)).thenReturn(pageSaida);
         //ACT + ASSERT
         mockMvc.perform(get("/emprestimos"))

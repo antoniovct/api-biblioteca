@@ -3,6 +3,7 @@ package com.antoniovictor.biblioteca.services;
 import com.antoniovictor.biblioteca.dto.LivroAtualizacao;
 import com.antoniovictor.biblioteca.dto.LivroEntrada;
 import com.antoniovictor.biblioteca.dto.LivroSaida;
+import com.antoniovictor.biblioteca.entities.Categoria;
 import com.antoniovictor.biblioteca.entities.Livro;
 import com.antoniovictor.biblioteca.repository.LivroRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -95,11 +96,11 @@ class LivroServiceTest {
     void listarLivrosPorCategoriaCenario1() {
         //ARRANGE
         Pageable pageable = PageRequest.of(0, 10);
-        when(livroRepository.findAllByCategoriaContainingIgnoreCase("drama",pageable)).thenReturn(new PageImpl<>(List.of(Optional.of(new Livro()))));
+        when(livroRepository.findAllByCategoria(Categoria.DRAMA,pageable)).thenReturn(new PageImpl<>(List.of(new Livro())));
         //ACT
         var livrosSaida = livroService.listarLivrosPorCategoria("drama", pageable);
         //ASSERT
-        verify(livroRepository).findAllByCategoriaContainingIgnoreCase("drama",pageable);
+        verify(livroRepository).findAllByCategoria(Categoria.DRAMA,pageable);
         assertNotNull(livrosSaida);
     }
 
@@ -107,10 +108,10 @@ class LivroServiceTest {
     @DisplayName("Verifica se deu erro ao buscar livros")
     void listarLivrosPorCategoriaCenario2() {
         //ARRANGE
-        Page<Optional<Livro>> livros = spy(new PageImpl<>(List.of()));
+        Page<Livro> livros = spy(new PageImpl<>(List.of()));
         Pageable pageable = PageRequest.of(0, 10);
         when(livros.isEmpty()).thenReturn(true);
-        when(livroRepository.findAllByCategoriaContainingIgnoreCase("drama",pageable)).thenReturn(livros);
+        when(livroRepository.findAllByCategoria(Categoria.DRAMA,pageable)).thenReturn(livros);
         //ACT + ASSERT
         assertThrows(EntityNotFoundException.class, () -> livroService.listarLivrosPorCategoria("drama", pageable));
     }
@@ -129,7 +130,7 @@ class LivroServiceTest {
     void listarLivrosPorNomeCenario1() {
         //ARRANGE
         Pageable pageable = PageRequest.of(0, 10);
-        when(livroRepository.findAllByTituloContaining("teste",pageable)).thenReturn(new PageImpl<>(List.of(Optional.of(new Livro()))));
+        when(livroRepository.findAllByTituloContaining("teste",pageable)).thenReturn(new PageImpl<>(List.of(new Livro())));
         //ACT
         var livroSaida = livroService.listarLivrosPorNome("teste", pageable);
         //ASSERT

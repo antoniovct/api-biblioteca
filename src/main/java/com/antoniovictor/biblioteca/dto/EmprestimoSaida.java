@@ -12,12 +12,12 @@ public record EmprestimoSaida(
         LocalDate inicio,
         LocalDate fim,
         Double multa,
-        Livro livro,
+        String livro,
         StatusEmprestimo statusEmprestimo,
-        Usuario usuario
+        String usuario
 ) {
     public EmprestimoSaida(Emprestimo emprestimo) {
         this(emprestimo.getId(), emprestimo.getInicio(),emprestimo.getFim(),
-                emprestimo.getMulta(),emprestimo.getLivro(),emprestimo.getStatus(),emprestimo.getUsuario());
+                emprestimo.getMulta(),emprestimo.getLivro().getTitulo(),emprestimo.getStatus(),emprestimo.getUsuario().getNome());
     }
 }

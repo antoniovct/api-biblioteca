@@ -1,5 +1,6 @@
 package com.antoniovictor.biblioteca.repository;
 
+import com.antoniovictor.biblioteca.entities.Categoria;
 import com.antoniovictor.biblioteca.entities.Livro;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface LivroRepository extends JpaRepository<Livro, Long> {
-    Page<Optional<Livro>> findAllByTituloContaining(String nome, Pageable pageable);
+    Page<Livro> findAllByTituloContaining(String nome, Pageable pageable);
 
-    Page<Optional<Livro>> findAllByCategoriaContainingIgnoreCase(String categoria, Pageable pageable);
+    Page<Livro> findAllByCategoria(Categoria categoria, Pageable pageable);
 }

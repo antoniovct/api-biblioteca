@@ -21,7 +21,7 @@ public class Emprestimo {
     private Long id;
     private LocalDate inicio;
     private LocalDate fim;
-    private Double multa;
+    private Double multa = 0.00;
     @ManyToOne
     @JoinColumn(name = "livro_id")
     private Livro livro;
